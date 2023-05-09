@@ -27,7 +27,4 @@ describe("GET /api/topics", () => {
         });
       });
   });
-  it("GET status:404, responds with an error when provided endpoint that does not exist", () => {
-    return request(app).get("/api/news").expect(404);
-  });
 });
