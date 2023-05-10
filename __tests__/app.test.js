@@ -45,3 +45,42 @@ describe("/api", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id", () => {
+  it("GET status:200, responds with an article object by ID provided", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then((res) => {
+        const article = res.body.article;
+        expect(article.article_id).toBe(3);
+        expect(article.title).toBe("Eight pug gifs that remind me of mitch");
+        expect(article.topic).toBe("mitch");
+        expect(article.author).toBe("icellusedkars");
+        expect(article.body).toBe("some gifs");
+        expect(article.created_at).toBe("2020-11-03T09:12:00.000Z");
+        expect(article.votes).toBe(0);
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  it("GET status: 400, returns error message when received invalid id", () => {
+    return request(app)
+      .get("/api/articles/article_3")
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad request.");
+      });
+  });
+  it("GET status: 404, returns error message when received unavailable id", () => {
+    return request(app)
+      .get("/api/articles/998")
+      .expect(404)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("No articles has been found.");
+      });
+  });
+});
