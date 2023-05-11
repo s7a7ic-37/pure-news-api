@@ -128,3 +128,54 @@ describe("/api/articles", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  it("GET status:200, responds an array of comments objects for the given article ID", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        const commentsArray = res.body.comments;
+        commentsArray.forEach((comment) => {
+          const { comment_id, votes, created_at, author, body, article_id } =
+            comment;
+          expect(typeof comment_id).toBe("number");
+          expect(typeof votes).toBe("number");
+          expect(typeof created_at).toBe("string");
+          expect(typeof author).toBe("string");
+          expect(typeof body).toBe("string");
+          expect(typeof article_id).toBe("number");
+        });
+      });
+  });
+  it("GET status:200, sorts comments by 'created_at' date in descending order by default", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        const commentsArray = res.body.comments;
+        expect(commentsArray).toBeSorted({
+          descending: true,
+          key: "created_at",
+        });
+      });
+  });
+  it("GET status: 400, returns error message when received invalid id", () => {
+    return request(app)
+      .get("/api/articles/invalid-id/comments")
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad request.");
+      });
+  });
+  it("GET status: 404, returns error message when received unavailable id", () => {
+    return request(app)
+      .get("/api/articles/998/comments")
+      .expect(404)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("No comments has been found.");
+      });
+  });
+});
