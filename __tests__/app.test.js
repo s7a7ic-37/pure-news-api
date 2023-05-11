@@ -84,3 +84,47 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
+
+describe("/api/articles", () => {
+  it("GET status:200, responds with an array of all article objects", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((res) => {
+        const articlesArray = res.body.articles;
+        expect(articlesArray.length).toBe(testData.articleData.length);
+        articlesArray.forEach((article) => {
+          const {
+            author,
+            title,
+            article_id,
+            topic,
+            created_at,
+            votes,
+            article_img_url,
+            comment_count,
+          } = article;
+          expect(typeof author).toBe("string");
+          expect(typeof title).toBe("string");
+          expect(typeof article_id).toBe("number");
+          expect(typeof topic).toBe("string");
+          expect(typeof created_at).toBe("string");
+          expect(typeof votes).toBe("number");
+          expect(typeof article_img_url).toBe("string");
+          expect(typeof comment_count).toBe("number");
+        });
+      });
+  });
+  it("GET status:200, sorts results by 'created_at' date in descending order by default", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((res) => {
+        const articlesArray = res.body.articles;
+        expect(articlesArray).toBeSorted({
+          descending: true,
+          key: "created_at",
+        });
+      });
+  });
+});
