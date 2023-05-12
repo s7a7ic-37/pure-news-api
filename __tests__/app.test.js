@@ -83,6 +83,113 @@ describe("/api/articles/:article_id", () => {
         expect(responseMessage).toBe("No articles has been found.");
       });
   });
+  it("PATCH status:200, responds with an updated article for the given article id", () => {
+    const testInput = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/articles/3")
+      .send(testInput)
+      .expect(200)
+      .then((res) => {
+        const article = res.body.article;
+        const {
+          article_id,
+          title,
+          topic,
+          author,
+          body,
+          created_at,
+          votes,
+          article_img_url,
+        } = article;
+        expect(article_id).toBe(3);
+        expect(title).toBe("Eight pug gifs that remind me of mitch");
+        expect(topic).toBe("mitch");
+        expect(author).toBe("icellusedkars");
+        expect(body).toBe("some gifs");
+        expect(created_at).toBe("2020-11-03T09:12:00.000Z");
+        expect(votes).toBe(10);
+        expect(article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  it("PATCH status:200, should skip properties other than 'inc_votes' in input object", () => {
+    const testInput = { inc_votes: 20, property: ";DROP TABLE articles;" };
+    return request(app)
+      .patch("/api/articles/3")
+      .send(testInput)
+      .expect(200)
+      .then((res) => {
+        const article = res.body.article;
+        const {
+          article_id,
+          title,
+          topic,
+          author,
+          body,
+          created_at,
+          votes,
+          article_img_url,
+        } = article;
+        expect(article_id).toBe(3);
+        expect(title).toBe("Eight pug gifs that remind me of mitch");
+        expect(topic).toBe("mitch");
+        expect(author).toBe("icellusedkars");
+        expect(body).toBe("some gifs");
+        expect(created_at).toBe("2020-11-03T09:12:00.000Z");
+        expect(votes).toBe(20);
+        expect(article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  it("PATCH status:200, works for negative votes property", () => {
+    const testInput = { inc_votes: -15 };
+    return request(app)
+      .patch("/api/articles/3")
+      .send(testInput)
+      .expect(200)
+      .then((res) => {
+        const article = res.body.article;
+        const { votes } = article;
+        expect(votes).toBe(-15);
+      });
+  });
+  it("PATCH status:400, returns error message when received invalid votes value", () => {
+    const testInput = { inc_votes: "1" };
+    return request(app)
+      .patch("/api/articles/3")
+      .send(testInput)
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad request.");
+      });
+  });
+  it("PATCH status: 400, returns error message when received invalid id", () => {
+    const testInput = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/articles/article_3")
+      .send(testInput)
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad request.");
+      });
+  });
+  it("PATCH status: 404, returns error message when received unavailable id", () => {
+    const testInput = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/articles/998")
+      .send(testInput)
+      .expect(404)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe(
+          "No articles has been found with id of 998"
+        );
+      });
+  });
 });
 
 describe("/api/articles", () => {
