@@ -234,6 +234,124 @@ describe("/api/articles", () => {
         });
       });
   });
+  it("GET status:200, filters articles by the topic value specifies in the query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((res) => {
+        const articlesArray = res.body.articles;
+        const mitchArticles = testData.articleData.filter(
+          (article) => article.topic === "mitch"
+        );
+        expect(articlesArray.length).toBe(mitchArticles.length);
+        articlesArray.forEach((article) => {
+          const {
+            author,
+            title,
+            article_id,
+            topic,
+            created_at,
+            votes,
+            article_img_url,
+            comment_count,
+          } = article;
+          expect(typeof author).toBe("string");
+          expect(typeof title).toBe("string");
+          expect(typeof article_id).toBe("number");
+          expect(topic).toBe("mitch");
+          expect(typeof created_at).toBe("string");
+          expect(typeof votes).toBe("number");
+          expect(typeof article_img_url).toBe("string");
+          expect(typeof comment_count).toBe("number");
+        });
+      });
+  });
+  it("GET status:200, returns an empty array when no article has been found with the existing topic value", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((res) => {
+        const articlesArray = res.body.articles;
+        expect(articlesArray.length).toBe(0);
+      });
+  });
+  it("GET status:400, returns error message when received invalid 'topic' query", () => {
+    return request(app)
+      .get("/api/articles?topic=pluto")
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe(
+          "No articles has been found with selected topic"
+        );
+      });
+  });
+  describe("GET status: 200, sorts articles by any valid column", () => {
+    const validColumns = [
+      { sortBy: "title", expected: "title" },
+      { sortBy: "topic", expected: "topic" },
+      { sortBy: "author", expected: "author" },
+      { sortBy: "created_at", expected: "created_at" },
+      { sortBy: "votes", expected: "votes" },
+      { sortBy: "comment_count", expected: "comment_count" },
+    ];
+
+    validColumns.forEach(({ sortBy, expected }) => {
+      it(`GET status: 200, sorts articles by ${sortBy}`, () => {
+        return request(app)
+          .get(`/api/articles?sort_by=${sortBy}`)
+          .expect(200)
+          .then((res) => {
+            const articlesArray = res.body.articles;
+            expect(articlesArray.length).toBe(testData.articleData.length);
+            expect(articlesArray).toBeSorted({
+              descending: true,
+              key: expected,
+            });
+          });
+      });
+    });
+  });
+  it("GET status:400, returns error message when received invalid 'sort_by' query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=sun")
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad 'sort_by' query");
+      });
+  });
+  it("GET status:200, sorts by query in descending order", () => {
+    return request(app)
+      .get("/api/articles?order=desc")
+      .expect(200)
+      .then((res) => {
+        const articles = res.body.articles;
+        expect(articles).toBeSorted({
+          descending: true,
+        });
+      });
+  });
+  it("GET status:200, sorts by query in ascending order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((res) => {
+        const articles = res.body.articles;
+        expect(articles).toBeSorted({
+          ascending: true,
+        });
+      });
+  });
+  it("GET status:400, returns error message when received invalid 'order' query", () => {
+    return request(app)
+      .get("/api/articles?order=sun")
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad 'order' query");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {

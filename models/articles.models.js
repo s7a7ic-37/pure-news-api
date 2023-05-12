@@ -1,4 +1,7 @@
-const { checkArticleExists } = require("../utils/utilsForAPI.js");
+const {
+  checkArticleExists,
+  checkTopicExists,
+} = require("../utils/utilsForAPI.js");
 const db = require("./../db/connection.js");
 
 exports.fetchArticleById = (article_id) => {
@@ -19,20 +22,50 @@ exports.fetchArticleById = (article_id) => {
       }
       return result.rows[0];
     });
-};
+  };
+  
+  exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc") => {
+  const orderList = ["asc", "desc"];
+  const sortByList = [
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
 
-exports.fetchAllArticles = () => {
-  return db
-    .query(
-      `
+  if (!sortByList.includes(sort_by)) {
+    return Promise.reject({ status: 400, message: "Bad 'sort_by' query" });
+  }
+  
+  if (!orderList.includes(order)) {
+    return Promise.reject({ status: 400, message: "Bad 'order' query" });
+  }
+
+  const queryValues = [];
+
+  let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
   CAST(COUNT(comments.article_id) AS INTEGER) AS comment_count
   FROM articles
   LEFT JOIN comments ON comments.article_id = articles.article_id
-  GROUP BY articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url
-  ORDER BY articles.created_at DESC;
-  `
-    )
+  `;
+
+  if (topic) {
+    queryString += ` WHERE articles.topic = $1`;
+    queryValues.push(topic);
+  }
+
+  queryString += ` GROUP BY articles.article_id`;
+  queryString += ` ORDER BY ${sort_by} ${order}`;
+  queryString += `;`;
+
+  return checkTopicExists(topic)
+    .then(() => {
+      return db.query(queryString, queryValues);
+    })
     .then((result) => {
       return result.rows;
     });
