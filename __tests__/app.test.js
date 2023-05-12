@@ -413,3 +413,29 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  it("DELETE status:204, removes the comment by comment id provided", () => {
+    return request(app).delete("/api/comments/5").expect(204);
+  });
+  it("DELETE status: 400, returns error message when received invalid comment id", () => {
+    return request(app)
+      .delete("/api/comments/article_3")
+      .expect(400)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe("Bad request.");
+      });
+  });
+  it("DELETE status: 404, returns error message when received unavailable comment id", () => {
+    return request(app)
+      .delete("/api/comments/998")
+      .expect(404)
+      .then((res) => {
+        const responseMessage = res.body.message;
+        expect(responseMessage).toBe(
+          "No comments has been found with id of 998"
+        );
+      });
+  });
+});
