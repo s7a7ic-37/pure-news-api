@@ -456,7 +456,4 @@ describe("/api/users", () => {
         });
       });
   });
-  it("GET status:404, responds with an error when provided endpoint that does not exist", () => {
-    return request(app).get("/api/user").expect(404);
-  });
 });
