@@ -439,3 +439,24 @@ describe("/api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("/api/users", () => {
+  it("GET status:200, responds with an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((res) => {
+        const usersArray = res.body.users;
+        expect(usersArray.length).toBe(4);
+        usersArray.forEach((user) => {
+          const { username, name, avatar_url } = user;
+          expect(typeof username).toBe("string");
+          expect(typeof name).toBe("string");
+          expect(typeof avatar_url).toBe("string");
+        });
+      });
+  });
+  it("GET status:404, responds with an error when provided endpoint that does not exist", () => {
+    return request(app).get("/api/user").expect(404);
+  });
+});
