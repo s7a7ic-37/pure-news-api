@@ -216,6 +216,33 @@ describe("/api/articles/:article_id/comments", () => {
         expect(createdTimestamp - currentTimestamp).toBeLessThanOrEqual(100);
       });
   });
+  it("POST status:201, should skip properties other than username or body in posted comment object", () => {
+    const testComment = {
+      username: "rogersop",
+      body: "123",
+      votes: ";DROP TABLE comments;",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(201)
+      .then((res) => {
+        const comment = res.body.comment[0];
+        const { comment_id, body, votes, author, article_id, created_at } =
+          comment;
+
+        const currentDate = new Date().toISOString();
+        const createdTimestamp = Date.parse(created_at);
+        const currentTimestamp = Date.parse(currentDate);
+
+        expect(comment_id).toBe(19);
+        expect(body).toBe("123");
+        expect(article_id).toBe(1);
+        expect(author).toBe("rogersop");
+        expect(votes).toBe(0);
+        expect(createdTimestamp - currentTimestamp).toBeLessThanOrEqual(100);
+      });
+  });
   it("POST status:400, responds with error message when provided invalid article id", () => {
     const testComment = {
       username: "rogersop",
@@ -260,7 +287,7 @@ describe("/api/articles/:article_id/comments", () => {
         const testUsername = testComment.username;
         const responseMessage = res.body.message;
         expect(responseMessage).toBe(
-          `No user has been found with username '${testUsername}'`
+          "User with provided username is not found"
         );
       });
   });

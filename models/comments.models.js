@@ -1,8 +1,5 @@
 const db = require("./../db/connection.js");
-const {
-  checkArticleExists,
-  checkUsernameExists,
-} = require("../utils/utilsForAPI.js");
+const { checkArticleExists } = require("../utils/utilsForAPI.js");
 
 exports.fetchCommentsByArticleId = (article_id) => {
   return checkArticleExists(article_id).then(() => {
@@ -22,11 +19,12 @@ exports.fetchCommentsByArticleId = (article_id) => {
 };
 
 exports.addComment = (article_id, username, body) => {
-  if (!body)
+  if (!body) {
     return Promise.reject({
       status: 400,
       message: "Your comment cannot be empty!",
     });
+  }
 
   const queryString = `
   INSERT INTO comments (article_id, author, body)
@@ -37,11 +35,10 @@ exports.addComment = (article_id, username, body) => {
 
   const promises = [
     checkArticleExists(article_id),
-    checkUsernameExists(username),
     db.query(queryString, queryValues),
   ];
 
   return Promise.all(promises).then((result) => {
-    return result[2].rows;
+    return result[1].rows;
   });
 };
