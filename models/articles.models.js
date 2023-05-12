@@ -1,3 +1,4 @@
+const { checkArticleExists } = require("../utils/utilsForAPI.js");
 const db = require("./../db/connection.js");
 
 exports.fetchArticleById = (article_id) => {
@@ -35,4 +36,28 @@ exports.fetchAllArticles = () => {
     .then((result) => {
       return result.rows;
     });
+};
+
+exports.updateArticleVotesById = (article_id, newVote) => {
+  if (typeof newVote !== "number") {
+    return Promise.reject({ status: 400, message: "Bad request." });
+  }
+
+  const queryString = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *;
+    `;
+
+  const queryValues = [newVote, article_id];
+
+  const promises = [
+    checkArticleExists(article_id),
+    db.query(queryString, queryValues),
+  ];
+
+  return Promise.all(promises).then((result) => {
+    return result[1].rows[0];
+  });
 };
