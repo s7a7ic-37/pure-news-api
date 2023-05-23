@@ -41,3 +41,17 @@ exports.checkUsernameExists = (username) => {
       return result;
     });
 };
+
+exports.checkTopicExists = (topic) => {
+  const queryString = "SELECT * FROM topics WHERE slug = $1";
+  const queryValues = [topic];
+  return db.query(queryString, queryValues).then((result) => {
+    if (result.rows.length === 0 && topic) {
+      return Promise.reject({
+        status: 400,
+        message: "No articles has been found with selected topic",
+      });
+    }
+    return result;
+  });
+};
