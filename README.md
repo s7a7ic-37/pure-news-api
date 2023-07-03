@@ -16,7 +16,7 @@ You can access the deployed version of Pure News API [here](https://pure-news-ap
 
 ## Frontend Repository
 
-The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://pure-news.ideanexus.uk).
+The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://pure-news.netlify.app).
 
 ## Prerequisites
 
