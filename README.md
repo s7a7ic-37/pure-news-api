@@ -12,11 +12,11 @@ Welcome to the Pure News API, an API that serves as the backend for the Pure New
 
 ## Deployment
 
-You can access the deployed version of Pure News API [here](pure-news-api.ideanexus.uk/api).
+You can access the deployed version of Pure News API [here](https://pure-news-api.ideanexus.uk/api).
 
 ## Frontend Repository
 
-The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](pure-news.ideanexus.uk).
+The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://pure-news.ideanexus.uk).
 
 ## Prerequisites
 
@@ -82,4 +82,4 @@ To set up and run the Pure News API locally, follow these steps:
 
 ## API Documentation
 
-For detailed information on the available API endpoints and their request/response structures, refer to the [API Documentation](pure-news-api.ideanexus.uk/api).
+For detailed information on the available API endpoints and their request/response structures, refer to the [API Documentation](https://pure-news-api.ideanexus.uk/api).
