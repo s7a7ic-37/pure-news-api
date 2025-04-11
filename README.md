@@ -12,7 +12,7 @@ Welcome to the Pure News API, an API that serves as the backend for the Pure New
 
 ## Deployment
 
-You can access the deployed version of Pure News API [here](https://pure-news-api.ideanexus.uk/api).
+You can access the deployed version of Pure News API [here](https://nc-news-api-z9fc.onrender.com/api).
 
 ## Frontend Repository
 
