@@ -12,7 +12,7 @@ Welcome to the Pure News API, an API that serves as the backend for the Pure New
 
 ## Deployment
 
-You can access the deployed version of Pure News API [here](https://nc-news-api-z9fc.onrender.com/api).
+You can access the deployed version of Pure News API [here](https://pure-news-api-1.onrender.com/api).
 
 ## Frontend Repository
 
@@ -82,4 +82,4 @@ To set up and run the Pure News API locally, follow these steps:
 
 ## API Documentation
 
-For detailed information on the available API endpoints and their request/response structures, refer to the [API Documentation](https://pure-news-api.ideanexus.uk/api).
+For detailed information on the available API endpoints and their request/response structures, refer to the [API Documentation](https://pure-news-api-1.onrender.com/api).
