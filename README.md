@@ -18,6 +18,21 @@ On 30 October 2026 the endpoint catalogue returned HTTP 200, but database-backed
 
 Unexpected failures emit an `Unhandled API error` log with a diagnostic code, such as `ENOTFOUND` or a PostgreSQL error code. Connection strings, error messages and request data are excluded from that log; clients receive a generic server error. Use the code in the hosting logs to investigate connection, authentication or schema failures.
 
+The Supabase dashboard subsequently confirmed that the configured project was paused and too old for dashboard restoration. Its original data has not been deleted. A fresh demo database can be initialized from the repository's sample data:
+
+    npm run bootstrap-demo
+    npm start
+
+The bootstrap command holds a transaction lock, initializes only when all four application tables are absent, and skips a complete existing schema. It refuses partial schemas and rolls back failed initialization. The original seed command replaces tables and is intended for disposable local development databases.
+
+In production, set NODE_ENV=production and DATABASE_URL in the hosting environment. The connection verifies the TLS certificate and times out after ten seconds. For a Supabase IPv4 connection, use the Session pooler URI on port 5432. Do not commit that URI or its password.
+
+The URI may omit its password when PGPASSWORD is configured separately. This avoids manually escaping password symbols in a URL. On Render, use the start command below to safely initialize an empty replacement demo database before serving requests:
+
+    npm run bootstrap-demo && npm start
+
+GitHub Actions runs the database-backed tests against a disposable PostgreSQL 16 service and exercises both the initial and repeat bootstrap paths.
+
 ## Frontend Repository
 
 The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://github.com/s7a7ic-37/pure-news).

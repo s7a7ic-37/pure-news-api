@@ -6,26 +6,26 @@ const {
   formatComments,
 } = require('./utils');
 
-const seed = ({ topicData, userData, articleData, commentData }) => {
-  return db
+const seed = ({ topicData, userData, articleData, commentData }, connection = db) => {
+  return connection
     .query(`DROP TABLE IF EXISTS comments;`)
     .then(() => {
-      return db.query(`DROP TABLE IF EXISTS articles;`);
+      return connection.query(`DROP TABLE IF EXISTS articles;`);
     })
     .then(() => {
-      return db.query(`DROP TABLE IF EXISTS users;`);
+      return connection.query(`DROP TABLE IF EXISTS users;`);
     })
     .then(() => {
-      return db.query(`DROP TABLE IF EXISTS topics;`);
+      return connection.query(`DROP TABLE IF EXISTS topics;`);
     })
     .then(() => {
-      const topicsTablePromise = db.query(`
+      const topicsTablePromise = connection.query(`
       CREATE TABLE topics (
         slug VARCHAR PRIMARY KEY,
         description VARCHAR
       );`);
 
-      const usersTablePromise = db.query(`
+      const usersTablePromise = connection.query(`
       CREATE TABLE users (
         username VARCHAR PRIMARY KEY,
         name VARCHAR NOT NULL,
@@ -35,7 +35,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       return Promise.all([topicsTablePromise, usersTablePromise]);
     })
     .then(() => {
-      return db.query(`
+      return connection.query(`
       CREATE TABLE articles (
         article_id SERIAL PRIMARY KEY,
         title VARCHAR NOT NULL,
@@ -48,7 +48,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       );`);
     })
     .then(() => {
-      return db.query(`
+      return connection.query(`
       CREATE TABLE comments (
         comment_id SERIAL PRIMARY KEY,
         body VARCHAR NOT NULL,
@@ -63,7 +63,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         'INSERT INTO topics (slug, description) VALUES %L;',
         topicData.map(({ slug, description }) => [slug, description])
       );
-      const topicsPromise = db.query(insertTopicsQueryStr);
+      const topicsPromise = connection.query(insertTopicsQueryStr);
 
       const insertUsersQueryStr = format(
         'INSERT INTO users ( username, name, avatar_url) VALUES %L;',
@@ -73,7 +73,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
           avatar_url,
         ])
       );
-      const usersPromise = db.query(insertUsersQueryStr);
+      const usersPromise = connection.query(insertUsersQueryStr);
 
       return Promise.all([topicsPromise, usersPromise]);
     })
@@ -94,7 +94,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         )
       );
 
-      return db.query(insertArticlesQueryStr);
+      return connection.query(insertArticlesQueryStr);
     })
     .then(({ rows: articleRows }) => {
       const articleIdLookup = createRef(articleRows, 'title', 'article_id');
@@ -112,7 +112,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
           ]
         )
       );
-      return db.query(insertCommentsQueryStr);
+      return connection.query(insertCommentsQueryStr);
     });
 };
 
