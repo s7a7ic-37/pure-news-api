@@ -10,5 +10,9 @@ exports.errorHandler = (err, req, res, next) => {
       .status(404)
       .send({ message: "User with provided username is not found" });
   }
+  const code = typeof err.code === "string" && /^[A-Z0-9_]{1,32}$/.test(err.code)
+    ? err.code
+    : "UNKNOWN";
+  console.error("Unhandled API error", { code });
   return res.status(500).send({ message: "Internal Server Error" });
 };

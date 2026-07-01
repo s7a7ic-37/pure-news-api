@@ -10,6 +10,12 @@ const getResponse = () => {
 };
 
 describe("errorHandler", () => {
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
   it("returns known status errors without trying to send a second response", () => {
     const response = getResponse();
     errorHandler({ status: 404, message: "Article not found" }, {}, response);
@@ -39,5 +45,16 @@ describe("errorHandler", () => {
     expect(response.send).toHaveBeenCalledWith({
       message: "Internal Server Error",
     });
+    expect(console.error).toHaveBeenCalledWith("Unhandled API error", { code: "UNKNOWN" });
+  });
+
+  it("logs only a safe diagnostic code, never connection strings or error details", () => {
+    const response = getResponse();
+    const secret = "postgresql://example:private@invalid.example/database";
+    errorHandler({ code: "ENOTFOUND", message: secret, connectionString: secret }, {}, response);
+    expect(console.error).toHaveBeenLastCalledWith("Unhandled API error", { code: "ENOTFOUND" });
+
+    errorHandler({ code: secret, message: secret }, {}, response);
+    expect(console.error).toHaveBeenLastCalledWith("Unhandled API error", { code: "UNKNOWN" });
   });
 });

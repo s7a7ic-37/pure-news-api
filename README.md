@@ -16,6 +16,8 @@ You can access the deployed version of Pure News API [here](https://pure-news-ap
 
 On 30 October 2026 the endpoint catalogue returned HTTP 200, but database-backed routes such as /api/topics and /api/articles returned HTTP 500. The repository does not contain production credentials, so the exact database-side cause has not been confirmed. The API error handler now returns each handled error only once.
 
+Unexpected failures emit an `Unhandled API error` log with a diagnostic code, such as `ENOTFOUND` or a PostgreSQL error code. Connection strings, error messages and request data are excluded from that log; clients receive a generic server error. Use the code in the hosting logs to investigate connection, authentication or schema failures.
+
 ## Frontend Repository
 
 The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://github.com/s7a7ic-37/pure-news).

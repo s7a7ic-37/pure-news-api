@@ -1,19 +1,20 @@
 const db = require("./../db/connection.js");
+const seed = require("../db/seeds/seed");
+const testData = require("../db/data/test-data");
 const {
   checkArticleExists,
   checkUsernameExists,
   checkTopicExists,
 } = require("../utils/utilsForAPI");
 
-afterAll(() => {
-  db.end();
-});
+beforeAll(() => seed(testData));
+afterAll(() => db.end());
 
 describe("checkArticleExists", () => {
   it("should return 404 error and a message if article does not exist", () => {
-    return checkArticleExists(998).catch((err) => {
-      expect(err.status).toBe(404);
-      expect(err.message).toBe("No articles has been found with id of 998");
+    return expect(checkArticleExists(998)).rejects.toMatchObject({
+      status: 404,
+      message: "No articles has been found with id of 998",
     });
   });
 
@@ -27,11 +28,9 @@ describe("checkArticleExists", () => {
 
 describe("checkUsernameExists", () => {
   it("should return 404 error and a message if username does not exist", () => {
-    return checkUsernameExists("username123").catch((err) => {
-      expect(err.status).toBe(404);
-      expect(err.message).toBe(
-        "No user has been found with username 'username123'"
-      );
+    return expect(checkUsernameExists("username123")).rejects.toMatchObject({
+      status: 404,
+      message: "No user has been found with username 'username123'",
     });
   });
 
@@ -44,12 +43,10 @@ describe("checkUsernameExists", () => {
 });
 
 describe("checkTopicExists", () => {
-  it("should return 404 error and a message if topic does not exist", () => {
-    return checkTopicExists("Topic123").catch((err) => {
-      expect(err.status).toBe(400);
-      expect(err.message).toBe(
-        "No articles has been found with selected topic"
-      );
+  it("should return 400 error and a message if topic does not exist", () => {
+    return expect(checkTopicExists("Topic123")).rejects.toMatchObject({
+      status: 400,
+      message: "No articles has been found with selected topic",
     });
   });
 
