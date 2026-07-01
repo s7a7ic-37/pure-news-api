@@ -14,6 +14,8 @@ Welcome to the Pure News API, an API that serves as the backend for the Pure New
 
 You can access the deployed version of Pure News API [here](https://pure-news-api-1.onrender.com/api).
 
+On 30 October 2026 the endpoint catalogue returned HTTP 200, but database-backed routes such as /api/topics and /api/articles returned HTTP 500. The repository does not contain production credentials, so the exact database-side cause has not been confirmed. The API error handler now returns each handled error only once.
+
 ## Frontend Repository
 
 The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://github.com/s7a7ic-37/pure-news).
