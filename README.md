@@ -29,6 +29,8 @@ In production, set NODE_ENV=production and DATABASE_URL in the hosting environme
 
 The URI may omit its password when PGPASSWORD is configured separately. This avoids manually escaping password symbols in a URL. On Render, use the start command below to safely initialize an empty replacement demo database before serving requests:
 
+For Supabase, set PGSSLROOTCERT=db/certs/supabase-prod-ca-2021.crt to trust its published root certificate while retaining certificate and hostname verification. This bundled file is a public CA certificate, not a private key. Its source is the Download certificate link in Supabase Database Settings.
+
     npm run bootstrap-demo && npm start
 
 GitHub Actions runs the database-backed tests against a disposable PostgreSQL 16 service and exercises both the initial and repeat bootstrap paths.

@@ -1,4 +1,5 @@
 const { Pool } = require("pg");
+const { readFileSync } = require("node:fs");
 const ENV = process.env.NODE_ENV || "development";
 
 require("dotenv").config({
@@ -14,7 +15,13 @@ if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
 
 const config = {
   ...(process.env.DATABASE_URL ? { connectionString: process.env.DATABASE_URL } : {}),
-  ...(ENV === "production" ? { ssl: { rejectUnauthorized: true }, max: 2 } : {}),
+  ...(ENV === "production" ? {
+    ssl: {
+      rejectUnauthorized: true,
+      ...(process.env.PGSSLROOTCERT ? { ca: readFileSync(process.env.PGSSLROOTCERT, "utf8") } : {}),
+    },
+    max: 2,
+  } : {}),
   connectionTimeoutMillis: 10000,
 };
 

@@ -5,6 +5,7 @@ const original = {
   NODE_ENV: process.env.NODE_ENV,
   PGDATABASE: process.env.PGDATABASE,
   DATABASE_URL: process.env.DATABASE_URL,
+  PGSSLROOTCERT: process.env.PGSSLROOTCERT,
 };
 
 beforeEach(() => {
@@ -12,6 +13,7 @@ beforeEach(() => {
   process.env.NODE_ENV = "test";
   process.env.PGDATABASE = "isolated_test";
   delete process.env.DATABASE_URL;
+  delete process.env.PGSSLROOTCERT;
 });
 
 afterAll(() => {
@@ -49,4 +51,15 @@ it("verifies the production TLS certificate and keeps the pool small", () => {
     max: 2,
     connectionTimeoutMillis: 10000,
   });
+});
+
+it("loads an explicit provider CA without disabling certificate verification", () => {
+  process.env.NODE_ENV = "production";
+  process.env.DATABASE_URL = "postgresql://demo@database.invalid/demo";
+  process.env.PGSSLROOTCERT = require("node:path").join(
+    __dirname, "../db/certs/supabase-prod-ca-2021.crt"
+  );
+  const ssl = config().ssl;
+  expect(ssl.rejectUnauthorized).toBe(true);
+  expect(new (require("node:crypto").X509Certificate)(ssl.ca).ca).toBe(true);
 });
