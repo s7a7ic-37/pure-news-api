@@ -14,7 +14,7 @@ Welcome to the Pure News API, an API that serves as the backend for the Pure New
 
 You can access the deployed version of Pure News API [here](https://pure-news-api-1.onrender.com/api).
 
-Restored on 30 October 2026. The endpoint catalogue, topics, articles, article details, comments and users were verified with HTTP 200 against the replacement database. The frontend is available at https://pure-news.netlify.app.
+The endpoint catalogue, topics, articles, article details, comments and users were verified with HTTP 200 against the replacement database. The frontend is available at https://pure-news.netlify.app.
 
 Unexpected failures emit an `Unhandled API error` log with a diagnostic code, such as `ENOTFOUND` or a PostgreSQL error code. Connection strings, error messages and request data are excluded from that log; clients receive a generic server error. Use the code in the hosting logs to investigate connection, authentication or schema failures.
 
