@@ -14,11 +14,11 @@ Welcome to the Pure News API, an API that serves as the backend for the Pure New
 
 You can access the deployed version of Pure News API [here](https://pure-news-api-1.onrender.com/api).
 
-On 30 October 2026 the endpoint catalogue returned HTTP 200, but database-backed routes such as /api/topics and /api/articles returned HTTP 500. The repository does not contain production credentials, so the exact database-side cause has not been confirmed. The API error handler now returns each handled error only once.
+Restored on 30 October 2026. The endpoint catalogue, topics, articles, article details, comments and users were verified with HTTP 200 against the replacement database. The frontend is available at https://pure-news.netlify.app.
 
 Unexpected failures emit an `Unhandled API error` log with a diagnostic code, such as `ENOTFOUND` or a PostgreSQL error code. Connection strings, error messages and request data are excluded from that log; clients receive a generic server error. Use the code in the hosting logs to investigate connection, authentication or schema failures.
 
-The Supabase dashboard subsequently confirmed that the configured project was paused and too old for dashboard restoration. Its original data has not been deleted. A fresh demo database can be initialized from the repository's sample data:
+The previous Supabase project was paused beyond dashboard restoration. It remains intact; this demo uses a fresh database initialized with the repository's original public sample data (36 articles and 300 comments), not recovered visitor comments. A fresh demo database can be initialized with:
 
     npm run bootstrap-demo
     npm start
@@ -27,13 +27,17 @@ The bootstrap command holds a transaction lock, initializes only when all four a
 
 In production, set NODE_ENV=production and DATABASE_URL in the hosting environment. The connection verifies the TLS certificate and times out after ten seconds. For a Supabase IPv4 connection, use the Session pooler URI on port 5432. Do not commit that URI or its password.
 
-The URI may omit its password when PGPASSWORD is configured separately. This avoids manually escaping password symbols in a URL. On Render, use the start command below to safely initialize an empty replacement demo database before serving requests:
+The URI may omit its password when PGPASSWORD is configured separately. This avoids manually escaping password symbols in a URL.
 
 For Supabase, set PGSSLROOTCERT=db/certs/supabase-prod-ca-2021.crt to trust its published root certificate while retaining certificate and hostname verification. This bundled file is a public CA certificate, not a private key. Its source is the Download certificate link in Supabase Database Settings.
+
+On Render, use this start command to safely initialize an empty replacement demo database before serving requests:
 
     npm run bootstrap-demo && npm start
 
 GitHub Actions runs the database-backed tests against a disposable PostgreSQL 16 service and exercises both the initial and repeat bootstrap paths.
+
+This is a public learning demo. Usernames are sample identities, not authenticated accounts; do not submit personal or sensitive information. The free Render instance can take about a minute to wake after inactivity. For a real community, authentication, authorization, abuse controls and operational monitoring would be required.
 
 ## Frontend Repository
 
