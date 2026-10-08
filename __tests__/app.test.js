@@ -34,6 +34,12 @@ describe("/api/topics", () => {
 });
 
 describe("/api", () => {
+  it("serves a binary project icon for browser tabs without changing the JSON API", async () => {
+    const res = await request(app).get("/favicon.ico").expect(200).expect("Content-Type", /image\/(?:x-icon|vnd.microsoft.icon)/);
+    expect(Buffer.isBuffer(res.body)).toBe(true);
+    expect(res.body.readUInt16LE(2)).toBe(1);
+    expect(res.body.readUInt16LE(4)).toBe(3);
+  });
   it("GET status:200, responds with an object representing all available endpoints of the api", () => {
     return request(app)
       .get("/api")

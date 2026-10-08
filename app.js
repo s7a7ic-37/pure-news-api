@@ -19,6 +19,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile("public/favicon.ico", { root: __dirname });
+});
+
 app.get("/api/topics", getTopics);
 
 app.get("/api", getAllEndpoints);
