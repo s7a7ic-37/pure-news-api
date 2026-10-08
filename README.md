@@ -1,112 +1,56 @@
 # Pure News API
 
-Welcome to the Pure News API, an API that serves as the backend for the Pure News platform, providing the necessary endpoints to interact with the application.
+An Express and PostgreSQL REST API for articles, topics, comments, users and voting.
 
-## Table of Contents
+**[API endpoint catalogue](https://pure-news-api-1.onrender.com/api)** · **[Frontend](https://github.com/s7a7ic-37/pure-news)** · **[Live app](https://pure-news.netlify.app/)**
 
-- [Deployment](#deployment)
-- [Frontend Repository](#frontend-repository)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [API Documentation](#api-documentation)
+## Features
 
-## Deployment
+- Filter and sort articles, fetch details and read comment threads.
+- Create/delete comments and update article votes.
+- Parameterized SQL, validated inputs and consistent error responses.
+- Database-backed integration tests and transactional demo initialization.
 
-You can access the deployed version of Pure News API [here](https://pure-news-api-1.onrender.com/api).
+Article pagination is optional:
 
-The endpoint catalogue, topics, articles, article details, comments and users were verified with HTTP 200 against the replacement database. The frontend is available at https://pure-news.netlify.app.
+```text
+GET /api/articles?topic=coding&sort_by=votes&order=desc&limit=12&p=2
+```
 
-Unexpected failures emit an `Unhandled API error` log with a diagnostic code, such as `ENOTFOUND` or a PostgreSQL error code. Connection strings, error messages and request data are excluded from that log; clients receive a generic server error. Use the code in the hosting logs to investigate connection, authentication or schema failures.
+Paginated responses include `total_count`, `page` and `limit`. Limits are 1–100; pages are 1–100000. Providing either parameter defaults the other to 12 or 1. Omitting both returns the unpaginated result. Sort ties use article IDs.
 
-The previous Supabase project was paused beyond dashboard restoration. It remains intact; this demo uses a fresh database initialized with the repository's original public sample data (36 articles and 300 comments), not recovered visitor comments. A fresh demo database can be initialized with:
+## Run locally
 
-    npm run bootstrap-demo
-    npm start
+Requires Node.js 22 and PostgreSQL 14.7 or later.
 
-The bootstrap command holds a transaction lock, initializes only when all four application tables are absent, and skips a complete existing schema. It refuses partial schemas and rolls back failed initialization. The original seed command replaces tables and is intended for disposable local development databases.
+```sh
+npm ci
+```
 
-In production, set NODE_ENV=production and DATABASE_URL in the hosting environment. The connection verifies the TLS certificate and times out after ten seconds. For a Supabase IPv4 connection, use the Session pooler URI on port 5432. Do not commit that URI or its password.
+Create two untracked environment files:
 
-The URI may omit its password when PGPASSWORD is configured separately. This avoids manually escaping password symbols in a URL.
+- `.env.development`: `PGDATABASE=nc_news`
+- `.env.test`: `PGDATABASE=nc_news_test`
 
-For Supabase, set PGSSLROOTCERT=db/certs/supabase-prod-ca-2021.crt to trust its published root certificate while retaining certificate and hostname verification. This bundled file is a public CA certificate, not a private key. Its source is the Download certificate link in Supabase Database Settings.
+Set local PostgreSQL connection variables if required, then run:
 
-On Render, use this start command to safely initialize an empty replacement demo database before serving requests:
+```sh
+npm run setup-dbs
+npm run seed
+npm test
+npm start
+```
 
-    npm run bootstrap-demo && npm start
+`setup-dbs` drops and recreates these two local databases. `seed` replaces application tables; use disposable development data.
 
-GitHub Actions runs the database-backed tests against a disposable PostgreSQL 16 service and exercises both the initial and repeat bootstrap paths.
+## Production configuration
 
-Article browsing supports opt-in pagination: `/api/articles?topic=coding&sort_by=votes&order=desc&limit=12&p=2`. The response adds `total_count`, `page` and `limit`. Counts respect the topic and remain available beyond the last page. `limit` accepts 1–100 and `p` accepts 1–100000 as decimal whole numbers. Sort ties use article IDs so pages do not overlap when values are equal. Omitting both parameters preserves the original unpaginated response. SQL values are parameterized and sort columns/directions are allowlisted. Offset pagination suits this small fixed demo catalogue; a frequently changing, large feed would need cursor pagination.
+Set `NODE_ENV=production` and `DATABASE_URL` in the hosting environment. Keep credentials out of Git. `PGPASSWORD` may supply the password separately from the URI.
 
-This is a public learning demo. Usernames are sample identities, not authenticated accounts; do not submit personal or sensitive information. The free Render instance can take about a minute to wake after inactivity. For a real community, authentication, authorization, abuse controls and operational monitoring would be required.
+TLS certificate verification is enabled. For Supabase, use an IPv4-compatible Session pooler connection on port 5432 and set `PGSSLROOTCERT=db/certs/supabase-prod-ca-2021.crt` for the bundled public CA certificate.
 
-## Frontend Repository
+`npm run bootstrap-demo` initializes the public sample dataset only when all four application tables are absent. It skips a complete schema, refuses a partial schema and rolls back failures. The hosted start command is `npm run bootstrap-demo && npm start`.
 
-The frontend code for the Pure News provides a user-friendly interface for interacting withthe application. You can find the frontend repository [here](https://github.com/s7a7ic-37/pure-news).
+## Demo notes
 
-## Prerequisites
-
-Before running Pure News API locally, ensure that you have the following prerequisites installed on your system:
-
-- Node.js 22 (the version used in CI)
-- Postgres (minimum version 14.7)
-
-## Installation
-
-To set up and run the Pure News API locally, follow these steps:
-
-1. Clone the repository:
-
-   ```shell
-   git clone https://github.com/s7a7ic-37/pure-news-api.git
-   ```
-
-2. Navigate to the project directory:
-
-   ```shell
-   cd pure-news-api
-   ```
-
-3. Install dependencies:
-
-   ```shell
-   npm install
-   ```
-
-4. Setup environment variables:
-
-   1. Create a new file called `.env.development` in the root directory of your project.
-
-      - Add the following variable to the file: `PGDATABASE=<name_of_your_development_database>`
-      - Replace `<name_of_your_development_database>` with the name of your development database.
-      - Save the `.env.development` file.
-
-   2. Create a new file called `.env.test` in the root directory of your project.
-      - Add the following variable to the file: `PGDATABASE=<name_of_your_test_database>`
-      - Replace `<name_of_your_test_database>` with the name of your test database.
-      - Save the `.env.test` file.
-
-   **Note:** Make sure to add the `.env.*` files to your `.gitignore` file to prevent sensitive information such as database passwords from being accidentally committed to the repository.
-
-5. Seed the local database:
-
-   ```shell
-   npm run setup-dbs
-   ```
-
-   and then
-
-   ```shell
-   npm run seed
-   ```
-
-6. Run tests (optional):
-
-   ```shell
-   npm test
-   ```
-
-## API Documentation
-
-For detailed information on the available API endpoints and their request/response structures, refer to the [API Documentation](https://pure-news-api-1.onrender.com/api).
+Usernames are sample identities, not authenticated accounts. Avoid personal data. The free Render instance may sleep. Server errors expose a generic response; hosting logs contain diagnostic codes without connection strings or request data.
