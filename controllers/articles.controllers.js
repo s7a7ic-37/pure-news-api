@@ -16,10 +16,10 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { topic, sort_by, order } = req.query;
-  fetchAllArticles(topic, sort_by, order)
-    .then((articles) => {
-      res.status(200).send({ articles });
+  const { topic, sort_by, order, limit, p } = req.query;
+  fetchAllArticles(topic, sort_by, order, limit, p)
+    .then((result) => {
+      res.status(200).send(result);
     })
     .catch((err) => {
       next(err);

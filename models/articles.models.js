@@ -24,7 +24,7 @@ exports.fetchArticleById = (article_id) => {
     });
   };
   
-  exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc") => {
+exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit, p) => {
   const orderList = ["asc", "desc"];
   const sortByList = [
     "title",
@@ -44,6 +44,17 @@ exports.fetchArticleById = (article_id) => {
     return Promise.reject({ status: 400, message: "Bad 'order' query" });
   }
 
+  const paginated = limit !== undefined || p !== undefined;
+  const page = Number(p ?? "1");
+  const pageSize = Number(limit ?? "12");
+  if (paginated && (
+    ![p ?? "1", limit ?? "12"].every((value) => typeof value === "string" && /^[1-9]\d*$/.test(value)) ||
+    !Number.isSafeInteger(page) || page > 100000 ||
+    !Number.isSafeInteger(pageSize) || pageSize > 100
+  )) {
+    return Promise.reject({ status: 400, message: "Use limit 1–100 and p 1–100000 as whole numbers." });
+  }
+
   const queryValues = [];
 
   let queryString = `
@@ -58,16 +69,28 @@ exports.fetchArticleById = (article_id) => {
     queryValues.push(topic);
   }
 
+  const countValues = [...queryValues];
+
   queryString += ` GROUP BY articles.article_id`;
-  queryString += ` ORDER BY ${sort_by} ${order}`;
+  queryString += ` ORDER BY ${sort_by} ${order}, articles.article_id ${order}`;
+  if (paginated) {
+    queryValues.push(pageSize, (page - 1) * pageSize);
+    queryString += ` LIMIT $${queryValues.length - 1} OFFSET $${queryValues.length}`;
+  }
   queryString += `;`;
 
   return checkTopicExists(topic)
     .then(() => {
-      return db.query(queryString, queryValues);
+      return Promise.all([
+        db.query(queryString, queryValues),
+        paginated
+          ? db.query(`SELECT COUNT(*)::integer AS total_count FROM articles${topic ? " WHERE topic = $1" : ""}`, countValues)
+          : null,
+      ]);
     })
-    .then((result) => {
-      return result.rows;
+    .then(([result, count]) => {
+      if (!paginated) return { articles: result.rows };
+      return { articles: result.rows, total_count: count.rows[0].total_count, page, limit: pageSize };
     });
 };
 

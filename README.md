@@ -37,6 +37,8 @@ On Render, use this start command to safely initialize an empty replacement demo
 
 GitHub Actions runs the database-backed tests against a disposable PostgreSQL 16 service and exercises both the initial and repeat bootstrap paths.
 
+Article browsing supports opt-in pagination: `/api/articles?topic=coding&sort_by=votes&order=desc&limit=12&p=2`. The response adds `total_count`, `page` and `limit`. Counts respect the topic and remain available beyond the last page. `limit` accepts 1–100 and `p` accepts 1–100000 as decimal whole numbers. Sort ties use article IDs so pages do not overlap when values are equal. Omitting both parameters preserves the original unpaginated response. SQL values are parameterized and sort columns/directions are allowlisted. Offset pagination suits this small fixed demo catalogue; a frequently changing, large feed would need cursor pagination.
+
 This is a public learning demo. Usernames are sample identities, not authenticated accounts; do not submit personal or sensitive information. The free Render instance can take about a minute to wake after inactivity. For a real community, authentication, authorization, abuse controls and operational monitoring would be required.
 
 ## Frontend Repository
@@ -47,7 +49,7 @@ The frontend code for the Pure News provides a user-friendly interface for inter
 
 Before running Pure News API locally, ensure that you have the following prerequisites installed on your system:
 
-- Node.js (minimum version 19.8.1)
+- Node.js 22 (the version used in CI)
 - Postgres (minimum version 14.7)
 
 ## Installation

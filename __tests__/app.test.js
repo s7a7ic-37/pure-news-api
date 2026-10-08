@@ -193,6 +193,34 @@ describe("/api/articles/:article_id", () => {
 });
 
 describe("/api/articles", () => {
+  it("paginates a stable ordering without overlaps when sort values tie", async () => {
+    const all = await request(app).get("/api/articles?sort_by=votes&order=desc").expect(200);
+    const first = await request(app).get("/api/articles?sort_by=votes&order=desc&limit=4&p=1").expect(200);
+    const second = await request(app).get("/api/articles?sort_by=votes&order=desc&limit=4&p=2").expect(200);
+    expect(first.body).toMatchObject({ total_count: all.body.articles.length, page: 1, limit: 4 });
+    expect([...first.body.articles, ...second.body.articles]).toEqual(all.body.articles.slice(0, 8));
+  });
+
+  it("counts only the matching topic and retains totals beyond the last page", async () => {
+    const all = await request(app).get("/api/articles?topic=mitch").expect(200);
+    const page = await request(app).get("/api/articles?topic=mitch&limit=2&p=100").expect(200);
+    expect(page.body).toEqual({ articles: [], total_count: all.body.articles.length, page: 100, limit: 2 });
+    const empty = await request(app).get("/api/articles?topic=paper&limit=2").expect(200);
+    expect(empty.body).toEqual({ articles: [], total_count: 0, page: 1, limit: 2 });
+  });
+
+  it("supports either pagination parameter while preserving the unpaginated response", async () => {
+    const legacy = await request(app).get("/api/articles").expect(200);
+    expect(Object.keys(legacy.body)).toEqual(["articles"]);
+    const page = await request(app).get("/api/articles?p=2").expect(200);
+    expect(page.body).toMatchObject({ page: 2, limit: 12, total_count: legacy.body.articles.length });
+    expect(page.body.articles).toEqual(legacy.body.articles.slice(12, 24));
+  });
+
+  it.each(["limit=0", "limit=-1", "limit=1.5", "limit=101", "limit=", "limit=2e1", "limit=2&limit=3", "p=0", "p=-1", "p=1.5", "p=100001", "p=NaN", "p=", "p[]=1"])("rejects invalid pagination: %s", async (query) => {
+    await request(app).get(`/api/articles?${query}`).expect(400);
+  });
+
   it("GET status:200, responds with an array of all article objects", () => {
     return request(app)
       .get("/api/articles")
