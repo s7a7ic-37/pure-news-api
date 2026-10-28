@@ -2,7 +2,7 @@
 
 An Express and PostgreSQL REST API for articles, topics, comments, users and voting.
 
-**[API endpoint catalogue](https://pure-news-api-1.onrender.com/api)** · **[Frontend](https://github.com/s7a7ic-37/pure-news)** · **[Live app](https://pure-news.netlify.app/)**
+**[API endpoint catalogue](https://news.artemislab.co.uk/api)** · **[Frontend](https://github.com/s7a7ic-37/pure-news)** · **[Live app](https://news.artemislab.co.uk/)**
 
 ## Features
 
