@@ -19,11 +19,17 @@ exports.fetchCommentsByArticleId = (article_id) => {
 };
 
 exports.addComment = (article_id, username, body) => {
-  if (!body) {
+  if (typeof username !== "string" || !username.trim()) {
+    return Promise.reject({ status: 400, message: "Choose a sample username." });
+  }
+  if (typeof body !== "string" || !body.trim()) {
     return Promise.reject({
       status: 400,
       message: "Your comment cannot be empty!",
     });
+  }
+  if (body.trim().length < 3 || body.length > 2000) {
+    return Promise.reject({ status: 400, message: "Comments must contain 3–2000 characters." });
   }
 
   const queryString = `

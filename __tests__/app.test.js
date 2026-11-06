@@ -9,6 +9,30 @@ beforeEach(() => {
   return seed(testData);
 });
 
+describe("write validation", () => {
+  it.each([42, [], {}, "   ", "ab", "a".repeat(2001)])("rejects invalid comment text %#", async (body) => {
+    await request(app).post("/api/articles/1/comments")
+      .send({ username: "rogersop", body }).expect(400);
+  });
+
+  it.each([null, 42, [], {}, ""])("rejects invalid comment usernames %#", async (username) => {
+    await request(app).post("/api/articles/1/comments")
+      .send({ username, body: "A valid comment" }).expect(400);
+  });
+
+  it("accepts Unicode comment text", async () => {
+    const response = await request(app).post("/api/articles/1/comments")
+      .send({ username: "rogersop", body: "Świetny artykuł" }).expect(201);
+    expect(response.body.comment[0].body).toBe("Świetny artykuł");
+  });
+
+  it("rejects vote overflow without changing the article", async () => {
+    await request(app).patch("/api/articles/1").send({ inc_votes: 2147483647 }).expect(400);
+    const response = await request(app).get("/api/articles/1").expect(200);
+    expect(response.body.article.votes).toBe(100);
+  });
+});
+
 afterAll(() => {
   db.end();
 });

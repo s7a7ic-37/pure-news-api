@@ -54,7 +54,7 @@
     }
   },
   "PATCH /api/articles/:article_id": {
-    "description": "updates the votes of a single article by article ID",
+    "description": "updates a single article's votes using a whole-number inc_votes; invalid or overflowing totals return 400",
     "exampleRequest": {
       "inc_votes": 10
     },
@@ -87,7 +87,7 @@
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "adds a new comment to a single article by article ID",
+    "description": "adds a comment using an existing sample username and 3–2000 characters of text; surrounding spaces do not count toward the minimum",
     "exampleRequest": {
       "username": "user123",
       "body": "This is a new comment."

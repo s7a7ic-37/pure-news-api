@@ -95,7 +95,7 @@ exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit
 };
 
 exports.updateArticleVotesById = (article_id, newVote) => {
-  if (typeof newVote !== "number") {
+  if (!Number.isSafeInteger(newVote)) {
     return Promise.reject({ status: 400, message: "Bad request." });
   }
 

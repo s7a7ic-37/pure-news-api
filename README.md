@@ -19,6 +19,8 @@ GET /api/articles?topic=coding&sort_by=votes&order=desc&limit=12&p=2
 
 Paginated responses include `total_count`, `page` and `limit`. Limits are 1–100; pages are 1–100000. Providing either parameter defaults the other to 12 or 1. Omitting both returns the unpaginated result. Sort ties use article IDs.
 
+Comments require a sample username and 3–2000 characters of text; leading/trailing spaces do not count toward the minimum. Vote increments must be whole numbers. Invalid writes return 400 without changing existing data.
+
 ## Run locally
 
 Requires Node.js 22 and PostgreSQL 14.7 or later.
