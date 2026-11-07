@@ -40,6 +40,10 @@ app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.get("/api/users", getAllUsers);
 
+app.use((req, res) => {
+  res.status(404).send({ message: "Route not found." });
+});
+
 app.use(errorHandler);
 
 module.exports = app;

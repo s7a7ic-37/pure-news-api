@@ -57,6 +57,15 @@ describe("/api/topics", () => {
   });
 });
 
+describe("unmatched routes", () => {
+  it.each(["get", "post", "patch", "delete"])("%s returns a JSON 404 for an unknown route", async (method) => {
+    const response = await request(app)[method]("/api/not-a-route")
+      .expect(404)
+      .expect("Content-Type", /application\/json/);
+    expect(response.body).toEqual({ message: "Route not found." });
+  });
+});
+
 describe("/api", () => {
   it("serves a binary project icon for browser tabs without changing the JSON API", async () => {
     const res = await request(app).get("/favicon.ico").expect(200).expect("Content-Type", /image\/(?:x-icon|vnd.microsoft.icon)/);
