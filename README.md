@@ -55,4 +55,6 @@ TLS certificate verification is enabled. For Supabase, use an IPv4-compatible Se
 
 ## Demo notes
 
+Scripted clients should send a descriptive `User-Agent`, such as `pure-news-client/1.0`. Cloudflare can reject default HTTP-library identifiers with [error 1010](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/).
+
 Usernames are sample identities, not authenticated accounts. Avoid personal data. The free Render instance may sleep. Server errors expose a generic response; hosting logs contain diagnostic codes without connection strings or request data.

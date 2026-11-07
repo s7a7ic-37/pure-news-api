@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/northcoders/be-nc-news.git"
+    "url": "git+https://github.com/s7a7ic-37/pure-news-api.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/northcoders/be-nc-news/issues"
+    "url": "https://github.com/s7a7ic-37/pure-news-api/issues"
   },
-  "homepage": "https://github.com/northcoders/be-nc-news#readme",
+  "homepage": "https://news.artemislab.co.uk/api",
   "devDependencies": {
     "husky": "^8.0.3",
     "jest": "^27.5.1",
