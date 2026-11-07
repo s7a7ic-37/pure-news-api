@@ -39,14 +39,9 @@ exports.addComment = (article_id, username, body) => {
   `;
   const queryValues = [article_id, username, body];
 
-  const promises = [
-    checkArticleExists(article_id),
-    db.query(queryString, queryValues),
-  ];
-
-  return Promise.all(promises).then((result) => {
-    return result[1].rows;
-  });
+  return checkArticleExists(article_id)
+    .then(() => db.query(queryString, queryValues))
+    .then((result) => result.rows);
 };
 
 exports.removeCommentByIs = (comment_id) => {
