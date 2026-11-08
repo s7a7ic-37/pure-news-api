@@ -48,6 +48,21 @@ describe("errorHandler", () => {
     expect(console.error).toHaveBeenCalledWith("Unhandled API error", { code: "UNKNOWN" });
   });
 
+  it.each([500, 503])("sanitizes a status-bearing server error while preserving HTTP %s", status => {
+    const response = getResponse();
+    errorHandler({ status, message: "synthetic internal details", code: "ECONNRESET" }, {}, response);
+    expect(response.status).toHaveBeenCalledWith(status);
+    expect(response.send).toHaveBeenCalledWith({ message: "Internal Server Error" });
+    expect(console.error).toHaveBeenCalledWith("Unhandled API error", { code: "ECONNRESET" });
+  });
+
+  it.each([200, 600, "503"])("uses a generic 500 for an invalid error status: %s", status => {
+    const response = getResponse();
+    errorHandler({ status, message: "synthetic internal details" }, {}, response);
+    expect(response.status).toHaveBeenCalledWith(500);
+    expect(response.send).toHaveBeenCalledWith({ message: "Internal Server Error" });
+  });
+
   it("logs only a safe diagnostic code, never connection strings or error details", () => {
     const response = getResponse();
     const secret = "postgresql://example:private@invalid.example/database";

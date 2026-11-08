@@ -21,6 +21,8 @@ Paginated responses include `total_count`, `page` and `limit`. Limits are 1–10
 
 Comments require a sample username and 3–2000 characters of text; leading/trailing spaces do not count toward the minimum. Vote increments must be whole numbers. Invalid writes return 400 without changing existing data.
 
+Malformed JSON returns a fixed 400 response without quoting submitted content. Bodies over the parser's 100 KB limit return 413. Server failures keep a generic message, including errors carrying a 5xx status.
+
 ## Run locally
 
 Requires Node.js 22 and PostgreSQL 14.7 or later.

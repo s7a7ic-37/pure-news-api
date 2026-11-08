@@ -1,5 +1,11 @@
 exports.errorHandler = (err, req, res, next) => {
-  if (err.status && err.message) {
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).send({ message: "Request body must be valid JSON." });
+  }
+  if (err.type === "entity.too.large") {
+    return res.status(413).send({ message: "Request body is too large." });
+  }
+  if (Number.isInteger(err.status) && err.status >= 400 && err.status < 500 && err.message) {
     return res.status(err.status).send({ message: err.message });
   }
   if (err.code === "22P02" || err.code === "22003") {
@@ -14,5 +20,6 @@ exports.errorHandler = (err, req, res, next) => {
     ? err.code
     : "UNKNOWN";
   console.error("Unhandled API error", { code });
-  return res.status(500).send({ message: "Internal Server Error" });
+  const status = Number.isInteger(err.status) && err.status >= 500 && err.status <= 599 ? err.status : 500;
+  return res.status(status).send({ message: "Internal Server Error" });
 };
