@@ -10,6 +10,15 @@ beforeEach(() => {
 });
 
 describe("write validation", () => {
+  it.each([
+    { username: "rogersop", body: "A null \u0000 character." },
+    { username: "rogers\u0000op", body: "A fictional comment." },
+  ])("rejects null characters without inserting a comment", async (input) => {
+    const before = await db.query("SELECT COUNT(*)::integer AS count FROM comments");
+    await request(app).post("/api/articles/1/comments").send(input).expect(400);
+    const after = await db.query("SELECT COUNT(*)::integer AS count FROM comments");
+    expect(after.rows[0].count).toBe(before.rows[0].count);
+  });
   it.each([42, [], {}, "   ", "ab", "a".repeat(2001)])("rejects invalid comment text %#", async (body) => {
     await request(app).post("/api/articles/1/comments")
       .send({ username: "rogersop", body }).expect(400);

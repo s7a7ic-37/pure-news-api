@@ -89,7 +89,7 @@
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "adds a comment using an existing sample username and 3–2000 characters of text; surrounding spaces do not count toward the minimum",
+    "description": "adds a comment using an existing sample username and 3–2000 characters of text; surrounding spaces do not count toward the minimum; usernames and text cannot contain null characters",
     "exampleRequest": {
       "username": "user123",
       "body": "This is a new comment."

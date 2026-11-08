@@ -26,4 +26,15 @@ describe("request parsing errors", () => {
     expect(db.query).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
   });
+
+  it.each([
+    { username: "rogersop", body: "A comment with a \u0000 character." },
+    { username: "rogers\u0000op", body: "A fictional comment." },
+  ])("rejects null characters before any database call", async (input) => {
+    const response = await request(app).post("/api/articles/1/comments").send(input).expect(400);
+    expect(response.body.message).toBe(input.username.includes("\0")
+      ? "Choose a sample username." : "Comments cannot contain null characters.");
+    expect(db.query).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
 });
