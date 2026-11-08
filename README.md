@@ -11,13 +11,13 @@ An Express and PostgreSQL REST API for articles, topics, comments, users and vot
 - Parameterized SQL, validated inputs and consistent error responses.
 - Database-backed integration tests and transactional demo initialization.
 
-Article pagination is optional:
+Search and pagination are optional:
 
 ```text
-GET /api/articles?topic=coding&sort_by=votes&order=desc&limit=12&p=2
+GET /api/articles?topic=coding&q=database&sort_by=votes&order=desc&limit=12&p=2
 ```
 
-Paginated responses include `total_count`, `page` and `limit`. Limits are 1–100; pages are 1–100000. Providing either parameter defaults the other to 12 or 1. Omitting both returns the unpaginated result. Sort ties use article IDs.
+Optional `q` searches article titles and bodies for a case-insensitive literal substring (up to 100 characters). Search combines with topic filtering. Paginated responses include `total_count`, `page` and `limit`; the total respects both filters. Limits are 1–100; pages are 1–100000. Providing either pagination parameter defaults the other to 12 or 1. Omitting both returns the unpaginated result. Sort ties use article IDs.
 
 Comments require a sample username and 3–2000 characters of text; leading/trailing spaces do not count toward the minimum. Vote increments must be whole numbers. Invalid writes return 400 without changing existing data.
 

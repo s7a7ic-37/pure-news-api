@@ -232,6 +232,30 @@ describe("/api/articles/:article_id", () => {
 });
 
 describe("/api/articles", () => {
+  it("searches title and body case-insensitively and keeps the filtered total across pages", async () => {
+    const legacy = await request(app).get("/api/articles?q=SOME%20GIFS").expect(200);
+    expect(Object.keys(legacy.body)).toEqual(["articles"]);
+    expect(legacy.body.articles.map(({ article_id }) => article_id)).toEqual([3]);
+
+    const first = await request(app).get("/api/articles?topic=mitch&q=SOME%20GIFS&limit=1&p=1").expect(200);
+    expect(first.body).toMatchObject({ total_count: 1, page: 1, limit: 1 });
+    expect(first.body.articles.map(({ article_id }) => article_id)).toEqual([3]);
+
+    const pastEnd = await request(app).get("/api/articles?topic=mitch&q=SOME%20GIFS&limit=1&p=2").expect(200);
+    expect(pastEnd.body).toEqual({ articles: [], total_count: 1, page: 2, limit: 1 });
+  });
+
+  it("treats search text as a literal bound value", async () => {
+    const injection = await request(app).get("/api/articles?q=%27%20OR%201%3D1%20--&limit=2").expect(200);
+    expect(injection.body.total_count).toBe(0);
+    const wildcard = await request(app).get("/api/articles?q=%25&limit=2").expect(200);
+    expect(wildcard.body.total_count).toBe(0);
+  });
+
+  it.each([`q=${"x".repeat(101)}`, "q[]=story", "q=one&q=two", "q=%00"])("rejects invalid search query: %s", async (query) => {
+    await request(app).get(`/api/articles?${query}`).expect(400);
+  });
+
   it("paginates a stable ordering without overlaps when sort values tie", async () => {
     const all = await request(app).get("/api/articles?sort_by=votes&order=desc").expect(200);
     const first = await request(app).get("/api/articles?sort_by=votes&order=desc&limit=4&p=1").expect(200);

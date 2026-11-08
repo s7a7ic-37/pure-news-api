@@ -16,8 +16,8 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { topic, sort_by, order, limit, p } = req.query;
-  fetchAllArticles(topic, sort_by, order, limit, p)
+  const { topic, sort_by, order, limit, p, q } = req.query;
+  fetchAllArticles(topic, sort_by, order, limit, p, q)
     .then((result) => {
       res.status(200).send(result);
     })

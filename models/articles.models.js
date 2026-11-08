@@ -24,7 +24,7 @@ exports.fetchArticleById = (article_id) => {
     });
   };
   
-exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit, p) => {
+exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit, p, q) => {
   const orderList = ["asc", "desc"];
   const sortByList = [
     "title",
@@ -44,6 +44,10 @@ exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit
     return Promise.reject({ status: 400, message: "Bad 'order' query" });
   }
 
+  if (q !== undefined && (typeof q !== "string" || q.length > 100 || q.includes("\0"))) {
+    return Promise.reject({ status: 400, message: "Use q as text up to 100 characters." });
+  }
+
   const paginated = limit !== undefined || p !== undefined;
   const page = Number(p ?? "1");
   const pageSize = Number(limit ?? "12");
@@ -56,6 +60,22 @@ exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit
   }
 
   const queryValues = [];
+  const filters = [];
+  const search = q?.trim();
+
+  if (topic) {
+    queryValues.push(topic);
+    filters.push(`articles.topic = $${queryValues.length}`);
+  }
+  if (search) {
+    queryValues.push(search);
+    const value = `$${queryValues.length}`;
+    // shortcut: scanning fits the sample feed; add a full-text index when the catalogue grows.
+    filters.push(
+      `(POSITION(LOWER(${value}) IN LOWER(articles.title)) > 0 OR POSITION(LOWER(${value}) IN LOWER(articles.body)) > 0)`
+    );
+  }
+  const where = filters.length ? ` WHERE ${filters.join(" AND ")}` : "";
 
   let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
@@ -63,11 +83,7 @@ exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit
   FROM articles
   LEFT JOIN comments ON comments.article_id = articles.article_id
   `;
-
-  if (topic) {
-    queryString += ` WHERE articles.topic = $1`;
-    queryValues.push(topic);
-  }
+  queryString += where;
 
   const countValues = [...queryValues];
 
@@ -84,7 +100,7 @@ exports.fetchAllArticles = (topic, sort_by = "created_at", order = "desc", limit
       return Promise.all([
         db.query(queryString, queryValues),
         paginated
-          ? db.query(`SELECT COUNT(*)::integer AS total_count FROM articles${topic ? " WHERE topic = $1" : ""}`, countValues)
+          ? db.query(`SELECT COUNT(*)::integer AS total_count FROM articles${where}`, countValues)
           : null,
       ]);
     })

@@ -14,15 +14,17 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves articles; omit limit and p to keep the original unpaginated response",
+    "description": "serves articles; optional q searches title and body case-insensitively; omit limit and p to keep the original unpaginated response",
     "queries": [
       "topic",
+      "q",
       "sort_by",
       "order",
       "limit",
       "p"
     ],
-    "pagination": "Optional limit (1–100) and p (1–100000), decimal whole numbers. Supplying either defaults the other to limit=12 or p=1. Adds total_count, page and limit; total_count respects the topic filter even on an empty page. Ties use article_id in the same order direction.",
+    "search": "Optional q searches for a literal case-insensitive substring in the article title or body. Maximum 100 characters; q combines with topic.",
+    "pagination": "Optional limit (1–100) and p (1–100000), decimal whole numbers. Supplying either defaults the other to limit=12 or p=1. Adds total_count, page and limit; total_count respects topic and q filters even on an empty page. Ties use article_id in the same order direction.",
     "exampleResponse": {
       "articles": [
         {
